@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.InputSystem;
 
 public class PlayerMovement2 : MonoBehaviour
@@ -6,15 +7,37 @@ public class PlayerMovement2 : MonoBehaviour
 
     public Rigidbody2D rb;
     bool isFacingRight = true;
+    public ParticleSystem SmokeFx;
 
     [Header ("Movement")]
     public float moveSpeed = 3f;
     float horizontalMovement;
 
+    [Header("Dashing")]
+    public float dashSpeed = 20f;
+    public float dashDuration = 0.1f;
+    public float dashCooldown = 2;
+    bool isDashing;
+    bool canDash = true;
+    TrailRenderer TrailRenderer;
+
     [Header("Jumping")]
     public float JumpPower = 6f;
     public int maxJumps = 2;
     int jumpsRemaining;
+
+    [Header("Attack")]
+    public Transform attackPoint;
+    public float attackRange = 0.5f;
+    public LayerMask enemyLayers;
+    public float attackCooldown = 0.5f;
+    private bool canAttack = true;
+    private Vector2 attackPointPos;
+
+
+    [Header("Health")]
+    public int maxHealth = 3;
+    private int currentHealth;
 
     [Header("GroundCheck")]
     public Transform groundCheckPos;
@@ -45,14 +68,19 @@ public class PlayerMovement2 : MonoBehaviour
 
     void Start()
     {
-        isFacingRight = false;
-        Vector3 ls = transform.localScale;
-        ls.x = -Mathf.Abs(ls.x); // Sağa bakıyor gibi görünüp aslında sola baksın
-        transform.localScale = ls;
+        TrailRenderer = GetComponent<TrailRenderer>();
+        currentHealth = maxHealth;
+        attackPointPos = attackPoint.localPosition;
+    
     }
 
     void Update()
     {
+        if (isDashing)
+        {
+            return;
+        }
+
         GroundCheck();
         Gravity();
         WallSlide();
@@ -116,22 +144,57 @@ public class PlayerMovement2 : MonoBehaviour
     {
         horizontalMovement = context.ReadValue<Vector2>().x;
     }
+
+    public void Dash2(InputAction.CallbackContext context)
+    {
+        if(context.performed && canDash)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        Physics2D.IgnoreLayerCollision(7,8, true);
+
+        canDash = false;
+        isDashing = true;
+
+        TrailRenderer.emitting = true;
+        float dashDirection = isFacingRight ? 1f : -1f;
+
+        rb.linearVelocity = new Vector2(dashDirection * dashSpeed, rb.linearVelocity.y); //dash mvovement
+
+        yield return new WaitForSeconds(dashDuration);
+        
+        rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y); // reset horizontal velocity
+
+        isDashing = false;
+        TrailRenderer.emitting = false;
+        Physics2D.IgnoreLayerCollision(7,8, false);
+
+        yield return new WaitForSeconds(dashCooldown);
+        canDash = true;
+    }
+    
     
     public void Jump2(InputAction.CallbackContext context)
 {
     if(jumpsRemaining > 0)
     {
-    if (context.performed)
-    {
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpPower);
-        jumpsRemaining--;
-    }
+        if (context.performed)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, JumpPower);
+            jumpsRemaining--;
+
+            SmokeFx.Play();
+        }
     else if (context.canceled)
-    {
-        // Zıplamayı kısa kesmek için yukarı doğru olan hızı azalt
-        rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
-        jumpsRemaining--;
-    }
+        {
+            // Zıplamayı kısa kesmek için yukarı doğru olan hızı azalt
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * 0.5f);
+            jumpsRemaining--;
+        }
     }
 
     //wall jump
@@ -140,10 +203,56 @@ public class PlayerMovement2 : MonoBehaviour
         isWallJumping = true;
         wallJumpTimer = 0;
         rb.linearVelocity = new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y);
+        SmokeFx.Play();
         
         Invoke (nameof(cancelWallJump), wallJumpTime + 0.1f); //wall jump = 0.f -- jum again 0.6f
     }
 }
+    public void Attack2(InputAction.CallbackContext context)
+{
+
+     Debug.Log("Attack tuşuna basıldı!");
+
+    if (!context.performed || !canAttack) return;
+
+    canAttack = false;
+    
+    // Saldırı kutusunu oluştur
+    Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
+
+    foreach (Collider2D enemy in hitEnemies)
+{
+    Debug.Log("Düşmana vuruldu: " + enemy.name);
+    enemy.GetComponent<PlayerMovement>()?.TakeDamage(1);
+}
+
+    StartCoroutine(AttackCooldown());
+}
+
+public void TakeDamage(int damage)
+{
+    currentHealth -= damage;
+
+    if (currentHealth <= 0)
+    {
+        Die();
+    }
+}
+
+private void Die()
+{
+    Debug.Log(gameObject.name + " died!");
+    // Buraya ölüm animasyonu, yeniden doğma ya da yok etme kodları gelebilir.
+    // Destroy(gameObject); // istersen bunu aktif edebilirsin
+}
+
+
+    private IEnumerator AttackCooldown()
+{
+    yield return new WaitForSeconds(attackCooldown);
+    canAttack = true;
+}
+
 
     private void GroundCheck()
     {
@@ -166,14 +275,19 @@ public class PlayerMovement2 : MonoBehaviour
 
     private void Flip()
     {
-        if(isFacingRight && horizontalMovement < 0 || !isFacingRight && horizontalMovement > 0 )
+        if (isFacingRight && horizontalMovement > 0 || !isFacingRight && horizontalMovement < 0)
+
         {
             isFacingRight = !isFacingRight;
             Vector3 ls = transform.localScale;
             ls.x *= -1f;
             transform.localScale =ls;
-        }
 
+            if(rb.linearVelocity.y == 0)
+            {
+                SmokeFx.Play();
+            }
+        }
     }
 
         private void OnDrawGizmosSelected() 
@@ -182,5 +296,12 @@ public class PlayerMovement2 : MonoBehaviour
         Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireCube(wallCheckPos.position, wallCheckSize);
+
+        if (attackPoint == null) return;
+        {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        }
     }
+
  }   

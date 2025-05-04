@@ -32,6 +32,12 @@ public class PlayerMovement : MonoBehaviour
     public LayerMask enemyLayers;
     public float attackCooldown = 0.5f;
     private bool canAttack = true;
+    private Vector2 attackPointPos;
+
+
+    [Header("Health")]
+    public int maxHealth = 3;
+    private int currentHealth;
 
     [Header("GroundCheck")]
     public Transform groundCheckPos;
@@ -63,7 +69,9 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         TrailRenderer = GetComponent<TrailRenderer>();
-        
+        currentHealth = maxHealth;
+        attackPointPos = attackPoint.localPosition;
+
     }
 
     void Update()
@@ -202,6 +210,9 @@ public class PlayerMovement : MonoBehaviour
 }
     public void Attack(InputAction.CallbackContext context)
 {
+
+     Debug.Log("Attack tuşuna basıldı!");
+
     if (!context.performed || !canAttack) return;
 
     canAttack = false;
@@ -209,8 +220,32 @@ public class PlayerMovement : MonoBehaviour
     // Saldırı kutusunu oluştur
     Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
+    foreach (Collider2D enemy in hitEnemies)
+{
+    Debug.Log("Düşmana vuruldu: " + enemy.name);
+    enemy.GetComponent<PlayerMovement>()?.TakeDamage(1);
+}
+
     StartCoroutine(AttackCooldown());
 }
+
+public void TakeDamage(int damage)
+{
+    currentHealth -= damage;
+
+    if (currentHealth <= 0)
+    {
+        Die();
+    }
+}
+
+private void Die()
+{
+    Debug.Log(gameObject.name + " died!");
+    // Buraya ölüm animasyonu, yeniden doğma ya da yok etme kodları gelebilir.
+    // Destroy(gameObject); // istersen bunu aktif edebilirsin
+}
+
 
     private IEnumerator AttackCooldown()
 {
@@ -251,9 +286,6 @@ public class PlayerMovement : MonoBehaviour
                 SmokeFx.Play();
             }
         }
-
-        attackPoint.localPosition = new Vector2(Mathf.Abs(attackPoint.localPosition.x) * (isFacingRight ? 1 : -1), attackPoint.localPosition.y);
-
     }
 
         private void OnDrawGizmosSelected() 
