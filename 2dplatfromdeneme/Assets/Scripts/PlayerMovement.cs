@@ -195,14 +195,12 @@ public class PlayerMovement : MonoBehaviour
         isWallJumping = true;
         wallJumpTimer = 0;
         rb.linearVelocity = new Vector2(wallJumpDirection * wallJumpPower.x, wallJumpPower.y);
-
         SmokeFx.Play();
         
         Invoke (nameof(cancelWallJump), wallJumpTime + 0.1f); //wall jump = 0.f -- jum again 0.6f
     }
 }
-
-public void Attack(InputAction.CallbackContext context)
+    public void Attack(InputAction.CallbackContext context)
 {
     if (!context.performed || !canAttack) return;
 
@@ -211,7 +209,13 @@ public void Attack(InputAction.CallbackContext context)
     // Saldırı kutusunu oluştur
     Collider2D[] hitEnemies = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayers);
 
-    StartCoroutine(attackCooldown());
+    StartCoroutine(AttackCooldown());
+}
+
+    private IEnumerator AttackCooldown()
+{
+    yield return new WaitForSeconds(attackCooldown);
+    canAttack = true;
 }
 
 
@@ -248,6 +252,8 @@ public void Attack(InputAction.CallbackContext context)
             }
         }
 
+        attackPoint.localPosition = new Vector2(Mathf.Abs(attackPoint.localPosition.x) * (isFacingRight ? 1 : -1), attackPoint.localPosition.y);
+
     }
 
         private void OnDrawGizmosSelected() 
@@ -256,5 +262,12 @@ public void Attack(InputAction.CallbackContext context)
         Gizmos.DrawWireCube(groundCheckPos.position, groundCheckSize);
         Gizmos.color = Color.blue;
         Gizmos.DrawWireCube(wallCheckPos.position, wallCheckSize);
+
+        if (attackPoint == null) return;
+        {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        }
     }
+
  }   

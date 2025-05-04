@@ -24,6 +24,24 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Dash",
+                    "type": "Button",
+                    "id": "3a8f999e-8170-4f89-b6e6-33ca6bd9d8f0",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Attack",
+                    "type": "Button",
+                    "id": "d4738d45-3718-430b-9f67-3d9f59d7c2eb",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Move2",
                     "type": "Value",
                     "id": "ea061e2f-e866-420f-a71a-bff45bf9cb8c",
@@ -36,15 +54,6 @@
                     "name": "Jump2",
                     "type": "Button",
                     "id": "9d83c57c-62ef-42b8-8840-4bfb36c2735b",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Dash",
-                    "type": "Button",
-                    "id": "3a8f999e-8170-4f89-b6e6-33ca6bd9d8f0",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -181,6 +190,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "447bf4af-44f6-4b2a-a0e4-26200a3bc30b",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Attack",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
