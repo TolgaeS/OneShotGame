@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody2D rb;
     bool isFacingRight = true;
     public ParticleSystem SmokeFx;
+    public Transform RespawnPoint;
 
     [Header ("Movement")]
     public float moveSpeed = 3f;
@@ -36,8 +37,12 @@ public class PlayerMovement : MonoBehaviour
 
 
     [Header("Health")]
-    public int maxHealth = 3;
-    private int currentHealth;
+    public int maxLives = 3;
+    private int currentLives;
+
+    [Header("Respawn")]
+    public Transform respawnPoint;
+    public float respawnSpeed = 2f; 
 
     [Header("GroundCheck")]
     public Transform groundCheckPos;
@@ -69,7 +74,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         TrailRenderer = GetComponent<TrailRenderer>();
-        currentHealth = maxHealth;
+        currentLives = maxLives;
         attackPointPos = attackPoint.localPosition;
 
     }
@@ -223,7 +228,8 @@ public class PlayerMovement : MonoBehaviour
     foreach (Collider2D enemy in hitEnemies)
 {
     Debug.Log("Düşmana vuruldu: " + enemy.name);
-    enemy.GetComponent<PlayerMovement>()?.TakeDamage(1);
+    enemy.GetComponent<PlayerMovement2>()?.TakeDamage(1);
+    StartCoroutine(MoveToRespawnPoint());
 }
 
     StartCoroutine(AttackCooldown());
@@ -231,21 +237,38 @@ public class PlayerMovement : MonoBehaviour
 
 public void TakeDamage(int damage)
 {
-    currentHealth -= damage;
 
-    if (currentHealth <= 0)
+    currentLives--;
+    Die();
+        if (currentLives <= 0)
     {
-        Die();
+        gameManager.GetComponent<GameManager>()?.GameOver();
     }
 }
 
 private void Die()
 {
     Debug.Log(gameObject.name + " died!");
-    // Buraya ölüm animasyonu, yeniden doğma ya da yok etme kodları gelebilir.
-    // Destroy(gameObject); // istersen bunu aktif edebilirsin
+
+    // Ölüm animasyonu veya efektleri ekleyebilirsin
+    StartCoroutine(MoveToRespawnPoint()); // Respawn noktasına hareket etmeyi başlat
 }
 
+    private IEnumerator MoveToRespawnPoint()
+{
+    float elapsedTime = 0f;
+    Vector3 startingPosition = transform.position;
+
+    // Respawn noktasına doğru hareket
+    while (elapsedTime < respawnSpeed)
+    {
+        transform.position = Vector3.Lerp(startingPosition, RespawnPoint.position, elapsedTime / respawnSpeed);
+        elapsedTime += Time.deltaTime;
+        yield return null; // Bir sonraki frame'e geç
+    }
+
+    transform.position = RespawnPoint.position; // Tam olarak respawn noktasına git
+}
 
     private IEnumerator AttackCooldown()
 {
