@@ -330,7 +330,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8975961, y: 1.2833333}
+    oldSize: {x: 0.8975961, y: 1.3358333}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -454,6 +454,8 @@ MonoBehaviour:
   rb: {fileID: 210755472}
   SmokeFx: {fileID: 1765616511}
   RespawnPoint: {fileID: 581573592}
+  gameManager: {fileID: 0}
+  animator: {fileID: 210755477}
   moveSpeed: 3
   dashSpeed: 20
   dashDuration: 0.1
@@ -926,7 +928,7 @@ Transform:
   m_GameObject: {fileID: 443479598}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.295, y: 0.035, z: 0}
+  m_LocalPosition: {x: -0.3, y: 0.03, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1840,6 +1842,7 @@ MonoBehaviour:
   rb: {fileID: 983804937}
   SmokeFx: {fileID: 1164111692}
   RespawnPoint: {fileID: 1898458166}
+  gameManager: {fileID: 0}
   moveSpeed: 5
   dashSpeed: 40
   dashDuration: 0.2
@@ -2321,7 +2324,7 @@ Transform:
   m_GameObject: {fileID: 1046738649}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.5, y: 0, z: 0}
+  m_LocalPosition: {x: -0.5, y: 0, z: 0}
   m_LocalScale: {x: -1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

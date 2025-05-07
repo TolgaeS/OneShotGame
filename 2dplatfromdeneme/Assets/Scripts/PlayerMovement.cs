@@ -9,6 +9,7 @@ public class PlayerMovement : MonoBehaviour
     bool isFacingRight = true;
     public ParticleSystem SmokeFx;
     public Transform RespawnPoint;
+    public GameManager gameManager;
 
     [Header ("Movement")]
     public float moveSpeed = 3f;

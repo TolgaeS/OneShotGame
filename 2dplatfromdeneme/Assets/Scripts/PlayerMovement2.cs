@@ -6,9 +6,11 @@ public class PlayerMovement2 : MonoBehaviour
 {
 
     public Rigidbody2D rb;
-    bool isFacingRight = true;
+    bool isFacingRight = false;
     public ParticleSystem SmokeFx;
     public Transform RespawnPoint;
+    public GameManager gameManager;
+    public Animator animator;
 
     [Header ("Movement")]
     public float moveSpeed = 3f;
@@ -96,6 +98,10 @@ public class PlayerMovement2 : MonoBehaviour
             rb.linearVelocity = new Vector2(horizontalMovement * moveSpeed, rb.linearVelocity.y);
             Flip();
         }
+
+        animator.SetFloat("yVelocity",rb.linearVelocity.y);
+        animator.SetFloat("Magnitude",rb.linearVelocity.magnitude);
+
     }
 
     public void Gravity()
@@ -128,7 +134,7 @@ public class PlayerMovement2 : MonoBehaviour
         if(isWallSliding)
         {
             isWallJumping = false;
-            wallJumpDirection = - transform.localScale.x;
+            wallJumpDirection = transform.localScale.x;
             wallJumpTimer = wallJumpTime;
 
             CancelInvoke(nameof(cancelWallJump));
@@ -192,6 +198,7 @@ public class PlayerMovement2 : MonoBehaviour
             jumpsRemaining--;
 
             SmokeFx.Play();
+            animator.SetTrigger("fleejump");
         }
     else if (context.canceled)
         {
