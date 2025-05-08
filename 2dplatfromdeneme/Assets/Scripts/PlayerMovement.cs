@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -10,9 +11,10 @@ public class PlayerMovement : MonoBehaviour
     public ParticleSystem SmokeFx;
     public Transform RespawnPoint;
     public GameManager gameManager;
+    public Animator animator;
 
     [Header ("Movement")]
-    public float moveSpeed = 3f;
+    public float moveSpeed = 5f;
     float horizontalMovement;
 
     [Header("Dashing")]
@@ -24,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
     TrailRenderer TrailRenderer;
 
     [Header("Jumping")]
-    public float JumpPower = 6f;
+    public float JumpPower = 9f;
     public int maxJumps = 2;
     int jumpsRemaining;
 
@@ -98,6 +100,9 @@ public class PlayerMovement : MonoBehaviour
             rb.linearVelocity = new Vector2(horizontalMovement * moveSpeed, rb.linearVelocity.y);
             Flip();
         }
+
+        animator.SetFloat("yVelocity",rb.linearVelocity.y);
+        animator.SetFloat("magnitude",rb.linearVelocity.magnitude);
     }
 
     public void Gravity()
@@ -194,6 +199,8 @@ public class PlayerMovement : MonoBehaviour
             jumpsRemaining--;
 
             SmokeFx.Play();
+            animator.SetTrigger("Jump");
+
         }
     else if (context.canceled)
         {
@@ -219,7 +226,10 @@ public class PlayerMovement : MonoBehaviour
 
      Debug.Log("Attack tuşuna basıldı!");
 
-    if (!context.performed || !canAttack) return;
+    if (!context.performed || !canAttack) 
+    {
+         return;
+    }
 
     canAttack = false;
     
@@ -243,7 +253,7 @@ public void TakeDamage(int damage)
     Die();
         if (currentLives <= 0)
     {
-        gameManager.GetComponent<GameManager>()?.GameOver();
+        SceneManager.LoadScene("MenuUI");
     }
 }
 

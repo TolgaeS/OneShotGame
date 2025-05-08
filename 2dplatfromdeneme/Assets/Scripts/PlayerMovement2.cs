@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement2 : MonoBehaviour
 {
@@ -13,7 +14,7 @@ public class PlayerMovement2 : MonoBehaviour
     public Animator animator;
 
     [Header ("Movement")]
-    public float moveSpeed = 3f;
+    public float moveSpeed = 5f;
     float horizontalMovement;
 
     [Header("Dashing")]
@@ -25,7 +26,7 @@ public class PlayerMovement2 : MonoBehaviour
     TrailRenderer TrailRenderer;
 
     [Header("Jumping")]
-    public float JumpPower = 6f;
+    public float JumpPower = 9f;
     public int maxJumps = 2;
     int jumpsRemaining;
 
@@ -198,7 +199,7 @@ public class PlayerMovement2 : MonoBehaviour
             jumpsRemaining--;
 
             SmokeFx.Play();
-            animator.SetTrigger("fleejump");
+            animator.SetTrigger("Jump");
         }
     else if (context.canceled)
         {
@@ -248,7 +249,7 @@ public void TakeDamage(int damage)
 
     if (currentLives <= 0)
     {
-        gameManager.GetComponent<GameManager>()?.GameOver();
+        SceneManager.LoadScene("MenuUI");
     }
 }
 
